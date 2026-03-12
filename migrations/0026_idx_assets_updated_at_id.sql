@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS idx_assets_updated_at_id ON assets (updated_at ASC, id ASC);

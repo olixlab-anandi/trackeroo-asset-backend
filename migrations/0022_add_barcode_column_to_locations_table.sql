@@ -1,0 +1,2 @@
+ALTER TABLE locations 
+ADD COLUMN barcode VARCHAR(100) UNIQUE;

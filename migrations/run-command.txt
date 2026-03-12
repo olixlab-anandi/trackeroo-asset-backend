@@ -1,0 +1,131 @@
+#Step 1: Log in as superuser
+psql -U postgres -h 127.0.0.1 -p 5432 -d postgres
+#Enter your postgres superuser password.
+
+
+#Step 2: Drop + recreate the role and DB cleanly
+#Inside the psql prompt:
+-- Drop old role if it exists
+DROP ROLE IF EXISTS assetuser;
+
+-- Create new role with LOGIN and password
+CREATE ROLE assetuser WITH LOGIN PASSWORD 'Strong1234';
+
+-- Drop DB if it exists
+DROP DATABASE IF EXISTS assetdb;
+
+-- Create fresh DB owned by assetuser
+CREATE DATABASE assetdb OWNER assetuser;
+
+-- Give schema rights (optional but good practice)
+\c assetdb
+ALTER SCHEMA public OWNER TO assetuser;
+GRANT ALL ON SCHEMA public TO assetuser;
+\q
+
+#Step 3: Test logging in as assetuser
+#From PowerShell (interactive password prompt):
+psql -U assetuser -h 127.0.0.1 -p 5432 -d assetdb
+#For Mac
+psql -U assetuser -h localhost -d assetdb
+Enter Strong1234
+
+If correct, you’ll see:
+
+assetdb=>
+
+
+Type \q to quit.
+
+
+#step4
+psql -U postgres -h 127.0.0.1 -p 5432 -d assetdb -P pager=off -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public AUTHORIZATION assetuser; GRANT ALL ON SCHEMA public TO assetuser;"
+
+
+#step5
+psql -U assetuser -h 127.0.0.1 -p 5432 -d assetdb -f migrations/001_init.sql
+
+
+
+npm run seed:superadmin
+
+#step5 create tables for movement, asset and locations
+psql -U assetuser -h 127.0.0.1 -p 5432 -d assetdb -f migrations/002_bulk_import.sql
+
+#step6 Drop unique on serial_number, replace with plain index.
+psql -U assetuser -h 127.0.0.1 -p 5432 -d assetdb -f migrations/003_assets_serial_non_unique.sql
+
+#step6 add_custom_fields_and_mappings
+psql -U assetuser -h 127.0.0.1 -p 5432 -d assetdb -f migrations/004_add_custom_fields_and_mappings.sql
+
+#step7 add_work_order_number.sql
+psql -U assetuser -h 127.0.0.1 -p 5432 -d assetdb -f migrations/005_add_work_order_number.sql
+
+#step8 make_assets_location_nullable.sql
+psql -U assetuser -h 127.0.0.1 -p 5432 -d assetdb -f migrations/006_make_assets_location_nullable.sql
+
+#step9 add_created_by_user.sql
+psql -U assetuser -h 127.0.0.1 -p 5432 -d assetdb -f migrations/007_add_created_by_user.sql
+
+# Step10: 008_add_updated_by_user.
+psql -U assetuser -h 127.0.0.1 -p 5432 -d assetdb -f migrations/008_add_updated_by_user.sql
+
+# Step11: 009_add_active_to_locations.
+psql -U assetuser -h 127.0.0.1 -p 5432 -d assetdb -f migrations/009_add_active_to_locations.sql
+
+# Step12: 0010_create_issue_return_schema
+psql -U assetuser -h 127.0.0.1 -p 5432 -d assetdb -f migrations/0010_create_issue_return_schema.sql
+
+# Step13: 0011_create_issue_schema
+psql -U assetuser -h 127.0.0.1 -p 5432 -d assetdb -f migrations/0011_create_issue_schema.sql
+
+# Step14: 0011_create_issue_schema
+psql -U assetuser -h 127.0.0.1 -p 5432 -d assetdb -f migrations/0012_issue_edit_table_changes_schema.sql
+
+# Step15: 0013_issue_list_indexes.sql
+psql -U assetuser -h 127.0.0.1 -p 5432 -d assetdb -f migrations/0013_issue_list_indexes.sql
+
+# Step16: 0014_users_role_guard.sql
+#Error detected in this script. TO-DO
+psql -U assetuser -h 127.0.0.1 -p 5432 -d assetdb -f migrations/0014_users_role_guard.sql
+
+# Step17: 0015_create_audit_events_table.sql
+psql -U assetuser -h 127.0.0.1 -p 5432 -d assetdb -f migrations/0015_create_audit_events_table.sql
+
+# Step18: 0016_audit_indexes.sql
+psql -U assetuser -h 127.0.0.1 -p 5432 -d assetdb -f migrations/0016_audit_indexes.sql
+
+# Step19: 0017_add_in_active_column_to_asset_table.sql
+psql -U assetuser -h 127.0.0.1 -p 5432 -d assetdb -f migrations/0017_add_in_active_column_to_asset_table.sql
+
+# Step20: 0018_smtp_settings_table.sql
+psql -U assetuser -h 127.0.0.1 -p 5432 -d assetdb -f migrations/0018_smtp_settings_table.sql
+
+# Step21: 0019_email_notifications_rules.sql
+psql -U assetuser -h 127.0.0.1 -p 5432 -d assetdb -f migrations/0019_email_notifications_rules.sql
+
+# Step22: 0020_email_notification_rule_change.sql
+#Error detected in this script. TO-DO
+psql -U assetuser -h 127.0.0.1 -p 5432 -d assetdb -f migrations/0020_email_notification_rule_change.sql
+
+# Step23: 0021_external_locations_table.sql
+psql -U assetuser -h 127.0.0.1 -p 5432 -d assetdb -f migrations/0021_external_locations_table.sql
+
+# Step24: 0022_add_barcode_column_to_locations_tablesql
+psql -U assetuser -h 127.0.0.1 -p 5432 -d assetdb -f migrations/0022_add_barcode_column_to_locations_table.sql
+
+
+# Step25: 0023_alter_issue_transaction_table.sql
+psql -U assetuser -h 127.0.0.1 -p 5432 -d assetdb -f migrations/0023_alter_issue_transaction_table.sql
+
+# Step26: 0024_alter_user_role_col_type.sql
+psql -U assetuser -h 127.0.0.1 -p 5432 -d assetdb -f migrations/0024_alter_user_role_col_type.sql
+
+# Step27: 0025_create_idempotency_keys.sql
+psql -U assetuser -h 127.0.0.1 -p 5432 -d assetdb -f migrations/0025_create_idempotency_keys.sql
+
+
+
+
+
+
