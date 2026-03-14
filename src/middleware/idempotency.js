@@ -11,7 +11,7 @@ export function createIdempotencyMiddleware(pool) {
   return async function idempotency(req, res, next) {
     const key = req.header("X-Idempotency-Key");
     if (!key) return next();
-
+    console.log("req.user:", req.user);
     const userId = req.user.id; // UUID
     const method = req.method.toUpperCase();
     const route = req.route?.path || req.originalUrl;
