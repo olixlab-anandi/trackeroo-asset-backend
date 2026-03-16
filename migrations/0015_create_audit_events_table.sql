@@ -27,7 +27,7 @@ CREATE INDEX IF NOT EXISTS idx_audit_events_action   ON audit_events (action);
 -- Trigger to log edits on movements (e.g., editing note)
 CREATE OR REPLACE FUNCTION log_movement_update() RETURNS trigger AS $$
 BEGIN
-  IF row_to_json(NEW) IS DISTINCT FROM row_to_json(OLD) THEN
+  IF to_jsonb(NEW) IS DISTINCT FROM to_jsonb(OLD) THEN
     INSERT INTO audit_events(
       action, entity_type, entity_id, ref_type, ref_id,
       summary, before_data, after_data
