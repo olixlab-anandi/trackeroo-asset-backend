@@ -189,7 +189,7 @@ router.get('/assets', async (req, res) => {
       LEFT JOIN issue_transaction it ON it.id = ii.transaction_id
       LEFT JOIN external_location el ON el.id = it.external_location_id
       ${whereSql}
-      ORDER BY a.updated_at ASC NULLS LAST, a.id ASC
+      ORDER BY a.created_at ASC NULLS LAST, a.id ASC
       LIMIT ${limitParam}
     `;
 
